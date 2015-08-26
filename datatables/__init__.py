@@ -59,7 +59,7 @@ class DataTable(object):
         returner = defaultdict(dict)
 
         # Matches columns[number][key] with an [optional_value] on the end
-        pattern = "{}(?:\[(\d+)\])?\[(\w+)\](?:\[(\w+)\])?".format(key_start)
+        pattern = "{0}(?:\[(\d+)\])?\[(\w+)\](?:\[(\w+)\])?".format(key_start)
 
         columns = (param for param in self.params if re.match(pattern, param))
 
@@ -74,7 +74,7 @@ class DataTable(object):
             else:
                 # Oh baby a triple
                 subdict = returner[int(column_id)].setdefault(key, {})
-                subdict[optional_subkey] = self.coerce_value("{}.{}".format(key, optional_subkey),
+                subdict[optional_subkey] = self.coerce_value("{0}.{1}".format(key, optional_subkey),
                                                              self.params[param])
 
         return dict(returner)
@@ -91,7 +91,7 @@ class DataTable(object):
 
     def get_integer_param(self, param_name):
         if param_name not in self.params:
-            raise DataTablesError("Parameter {} is missing".format(param_name))
+            raise DataTablesError("Parameter {0} is missing".format(param_name))
 
         try:
             return int(self.params[param_name])
@@ -169,14 +169,10 @@ class DataTable(object):
         }
 
     def output_instance(self, instance):
-        returner = {
-            key.name: self.get_value(key, instance) for key in self.columns
-        }
+        returner = dict((key.name, self.get_value(key, instance)) for key in self.columns)
 
         if self.data:
-            returner["DT_RowData"] = {
-                k: v(instance) for k, v in self.data.items()
-            }
+            returner["DT_RowData"] = dict((k, v(instance)) for k, v in self.data.items())
 
         return returner
 

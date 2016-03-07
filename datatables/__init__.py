@@ -186,11 +186,17 @@ class DataTable(object):
             tmp_list=attr.split(".")
             attr=tmp_list[-1]
             for sub in tmp_list[:-1]:
-                instance = getattr(instance, sub)
+                if instance:
+                    instance = getattr(instance, sub)
+                else:
+                    instance = None
 
         if key.filter is not None:
             r = key.filter(instance)
         else:
-            r = getattr(instance, attr)
+            if instance:
+                r = getattr(instance, attr)
+            else:
+                r = None
 
         return r() if inspect.isroutine(r) else r

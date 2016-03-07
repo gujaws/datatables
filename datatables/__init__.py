@@ -53,7 +53,7 @@ class DataTable(object):
             self.columns_dict[d.name] = d
 
         for column in (col for col in self.columns if "." in col.model_name):
-            self.query = self.query.join(column.model_name.split(".")[0], aliased=True)
+            self.query = self.query.outerjoin(column.model_name.split(".")[0], aliased=True)
 
     def query_into_dict(self, key_start):
         returner = defaultdict(dict)
@@ -186,11 +186,17 @@ class DataTable(object):
             tmp_list=attr.split(".")
             attr=tmp_list[-1]
             for sub in tmp_list[:-1]:
-                instance = getattr(instance, sub)
+                if instance:
+                    instance = getattr(instance, sub)
+                else:
+                    instance = None
 
         if key.filter is not None:
             r = key.filter(instance)
         else:
-            r = getattr(instance, attr)
+            if instance:
+                r = getattr(instance, attr)
+            else:
+                r = None
 
         return r() if inspect.isroutine(r) else r
